@@ -4,6 +4,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"sync"
 	"time"
 
 	virtualnotify "github.com/lemon-mint/VirtualNotify"
@@ -28,6 +29,9 @@ type Turboumbrella struct {
 
 	// EventListeners
 	vnevs *virtualnotify.VirtualNotify
+
+	// Shutdown Onces
+	shutdownOnce sync.Once
 }
 
 const (
@@ -48,6 +52,8 @@ func New(nameSpace, network, host string) (*Turboumbrella, error) {
 		return nil, err
 	}
 
+	tu.shutdownOnce = sync.Once{}
+
 	tu.myPid = os.Getpid()
 
 	tu.vnevs = virtualnotify.New(ID)
@@ -60,8 +66,14 @@ func (tu *Turboumbrella) Listener() net.Listener {
 }
 
 func (tu *Turboumbrella) Close() error {
-	tu.vnevs.Close()
-	return tu.ln.Close()
+	var err error
+	tu.shutdownOnce.Do(
+		func() {
+			tu.vnevs.Close()
+			err = tu.ln.Close()
+		},
+	)
+	return err
 }
 
 func (tu *Turboumbrella) WaitForUpgrade() error {

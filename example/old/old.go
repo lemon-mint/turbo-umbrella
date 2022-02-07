@@ -23,10 +23,16 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	s := &http.Server{}
+	s := &http.Server{
+		IdleTimeout: time.Second * 10,
+	}
 	t.OnUpgrade = func() {
-		fmt.Println("OnUpgrade")
-		s.Close()
+		log.Println("Shutting down Server...")
+		err := s.Close()
+		if err != nil {
+			log.Println(err)
+		}
+		log.Println("Server Closed")
 	}
 	s.Handler = http.HandlerFunc(greet)
 
