@@ -3,7 +3,7 @@ module github.com/lemon-mint/turbo-umbrella
 go 1.17
 
 require (
-	github.com/lemon-mint/VirtualNotify v0.0.0-20220206134259-0fddc690df6c
+	github.com/lemon-mint/VirtualNotify v0.0.0-20220724092216-ee71430348e4
 	github.com/libp2p/go-reuseport v0.2.0
 )
 
